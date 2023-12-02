@@ -396,7 +396,11 @@ molecule::molecule(const char *filename, int p, int q)
     core_hamiltonian = calculate_core_hamiltonian();
 }
 
-//define functions to calculate fock matrix, density matrix, and coefficient matrix
+//function to build the fock matrix
+//inputs:
+//      arma::mat density_matrix - the p_alpha or p_beta density matrix
+//outputs:
+//      arma::mat matrix - the calculated fock matrix
 arma::mat molecule::calculate_fock_matrix(arma::mat density_matrix)
 {
     arma::mat matrix;
@@ -487,6 +491,10 @@ arma::mat molecule::calculate_fock_matrix(arma::mat density_matrix)
     return matrix;
 }
 
+//function to calculate the core hamiltonian
+//inputs: none
+//outputs:
+//      arma::mat matrix - the core hamiltonian of the molecule
 arma::mat molecule::calculate_core_hamiltonian()
 {
     arma::mat matrix;
@@ -571,7 +579,11 @@ arma::mat molecule::calculate_core_hamiltonian()
 }
 
 
-//calculate the coefficient matrix for molecular orbitals using the given fock matrix
+//function to calculate the coefficient matrix for molecular orbitals using the given fock matrix
+//inputs:
+//      arma::mat fock_matrix - the most current fock matrix
+//outputs:
+//      arma::mat eigenvectors - the eigenvectors (molecular coefficients) from the symmetric eigenvalue solver
 arma::mat molecule::calculate_coefficient_matrix(arma::mat fock_matrix)
 {
     arma::vec eigenvalues;
@@ -581,12 +593,23 @@ arma::mat molecule::calculate_coefficient_matrix(arma::mat fock_matrix)
     return eigenvectors;
 }
 
-//calculate the density matrix
+//function calculate the density matrix (alpha or beta)
+//inputs:
+//      arma::mat coeff_matrix - the most current coefficient matrix
+//      int occ_mos - the number of occupied molecular orbitals
+//outputs:
+//      arma::mat matrix - the new density matrix
 arma::mat molecule::calculate_density_matrix(arma::mat coeff_matrix, int occ_mos)
 {
     return coeff_matrix.cols(0, occ_mos - 1) * coeff_matrix.cols(0, occ_mos - 1).t();
 }
 
+//function to sum the density matrices and return the total density matrix. also updates the atomic_density vector of molecule
+//inputs:
+//      arma::mat density_alpha, density_beta - the two most current density matrices
+//      arma::vec atomic_density - the atomic_density vector of the molecule object
+//outputs:
+//      arma::mat density_total - the most current total density matrix
 arma::mat molecule::calculate_total_density_matrix(arma::mat density_alpha, arma::mat density_beta, arma::vec & atomic_density)
 {
     arma::mat density_total = density_alpha + density_beta;
@@ -604,7 +627,10 @@ arma::mat molecule::calculate_total_density_matrix(arma::mat density_alpha, arma
 
 }
 
-
+//function to perform the fixed point iterations of the self consistent field for CNDO/2
+//inputs:
+//      bool verbose - if TRUE, prints information about current iteration. If false, no print output
+//outputs: none
 void molecule::scf_steps(bool verbose)
 {
     //p_electrons = 1;
@@ -676,6 +702,11 @@ void molecule::scf_steps(bool verbose)
 
 }
 
+//function to calculate the energy using the CNDO/2 energy expression
+//inputs:
+//      bool verbose - If TRUE, prints the value of each term in the energy expression to std::cout
+//outputs:
+//      double result - the calculated energy in electron volts
 double molecule::calculate_energy(bool verbose)
 {
     double sum_alpha = 0;
@@ -683,13 +714,6 @@ double molecule::calculate_energy(bool verbose)
     double sum_AB = 0;
     double result = 0;
     double conversion = 27.211;
-
-    //int p_electrons = 1;
-    //int q_electrons = 1;
-
-    //density_matrix_alpha = calculate_density_matrix(coefficient_matrix_alpha, p_electrons);
-    //density_matrix_beta = calculate_density_matrix(coefficient_matrix_beta, q_electrons);
-
 
     for (int mu = 0; mu < n_basis; mu++)
     {
@@ -741,6 +765,9 @@ double molecule::calculate_energy(bool verbose)
     return result;
 }
 
+//function to print output with information about the current matrices in molecule object to std::cout
+//inputs: none
+//outputs: none
 void molecule::print_info()
 {
     std::cout << "Gamma Matrix" << std::endl;
