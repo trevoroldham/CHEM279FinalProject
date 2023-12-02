@@ -7,6 +7,11 @@
 #include<cstdio>
 #include<cmath>
 
+//function to build the x matrix in the CNDO/2 analytical gradient expression
+//inputs:
+//      molecule mol - the molecule object with which to calculate the gradient
+//outputs:
+//      arma::mat - a matrix of dimension (n_basis x n_basis)
 arma::mat gradient::build_x_matrix(molecule mol)
 {
     arma::mat x(mol.n_basis, mol.n_basis);
@@ -26,6 +31,11 @@ arma::mat gradient::build_x_matrix(molecule mol)
     return x;
 }
 
+//function to build the y matrix in the CNDO/2 analytical gradient expression
+//inputs:
+//      molecule mol - the molecule object with which to calculate the gradient
+//outputs:
+//      arma::mat - a matrix of dimension (n_atoms x n_atoms)
 arma::mat gradient::build_y_matrix(molecule mol)
 {
     arma::mat y(mol.n_atoms, mol.n_atoms);
@@ -59,6 +69,11 @@ arma::mat gradient::build_y_matrix(molecule mol)
     return y;
 }
 
+//function to calculate the derivative of the nuclear repulsion energy wrt atomic perturbation
+//inputs:
+//      molecule mol - the molecule object with which to calculate the gradient
+//outputs:
+//      arma::mat - a matrix of dimension (3 x n_atoms)
 arma::mat gradient::calculate_dv_dr(molecule mol)
 {
     arma::mat dv_dr(mol.n_atoms, 3);
@@ -89,22 +104,21 @@ arma::mat gradient::calculate_dv_dr(molecule mol)
     return dv_dr;
 }
 
+//function to calculate the CNDO/2 analytical gradient expression
+//inputs:
+//      molecule mol - the molecule object with which to calculate the gradient
+//outputs:
+//      arma::mat - a matrix of dimension (3 x n_atoms)
 arma::mat gradient::calculate_gradient(molecule mol)
 {
     arma::mat x = gradient::build_x_matrix(mol);
     arma::mat y = gradient::build_y_matrix(mol);
 
     arma::field<arma::vec> dgamma = util::calculate_d_gamma_ab_matrix(mol);
-    //std::cout << "Printing d_gamma_ab" << std::endl;
-    //print_field(dgamma);
 
     arma::field<arma::vec> ds = util::calculate_s_mu_nu_matrix(mol);
-    //std::cout << "Printing d_s" << std::endl;
-    //print_field(ds);
 
     arma::mat dv = gradient::calculate_dv_dr(mol);
-    //std::cout << "DV" << std::endl;
-    //std::cout << dv << std::endl;
 
     arma::vec sum = {0, 0, 0};
     arma::mat result(mol.n_atoms, 3);
@@ -142,6 +156,10 @@ arma::mat gradient::calculate_gradient(molecule mol)
 
 }
 
+//function to print the arma::field<arma::vec> objects to std::cout
+//inputs:
+//      arma::field<arma::vec> field - the given field
+//outputs: none. print to std::cout
 void gradient::print_field(arma::field<arma::vec> field)
 {
 

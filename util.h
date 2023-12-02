@@ -9,12 +9,15 @@
 
 namespace util {
 
+    //functions to use in the integrator namespace
     int factorial(int n);
     int double_factorial(int n);
     int combination(int m, int n);
 
+    //function to compute the weighted center of two primitive guassians
     arma::vec compute_center(arma::vec R_a, arma::vec R_b, double alpha, double beta);
 
+    //functions used in calculating overlap matrix, gamma matrix, and their respective derivatives
     double calculate_overlap(primitive_guassian a, primitive_guassian b);
     double calculate_overlap(atomic_orbital a, atomic_orbital b);
     double calculate_gamma(atomic_orbital a, atomic_orbital b);

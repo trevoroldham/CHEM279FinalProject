@@ -74,6 +74,11 @@ arma::vec util::compute_center(arma::vec R_a, arma::vec R_b, double alpha, doubl
     return R_p;
 }
 
+//function to calculate the overlap integral between two primitive guassian functions
+//inputs:
+//      primitive_guassian a, b - two primitive guassian objects
+//outputs:
+//      double overlap - the overlap integral of the two guassians
 double util::calculate_overlap(primitive_guassian a, primitive_guassian b)
 {
     double overlap;
@@ -90,6 +95,11 @@ double util::calculate_overlap(primitive_guassian a, primitive_guassian b)
     return overlap;
 }
 
+//function to calculate the overlap between two atomic orbital objects
+//inputs:
+//      atomic_orbital a, b - the two atomic orbital objects
+//outputs:
+//      double overlap - the overlap integral between a and b. this is the (a, b) element in the overlap matrix
 double util::calculate_overlap(atomic_orbital a, atomic_orbital b)
 {
     double overlap = 0;
@@ -107,6 +117,12 @@ double util::calculate_overlap(atomic_orbital a, atomic_orbital b)
     return overlap;
 }
 
+//function to calculate the derivative of the overlap integral with respect to a nuclear perturbation
+//used to calculate one row entry (3 x 1) in the derivative of the overlap matrix
+//inputs:
+//      atomic_orbital a, b - two atomic orbital objects
+//outputs:
+//      arma::vec result - (1 x 3) vector of the derivative in x, y, and z
 arma::vec util::calculate_d_s_mu_nu(atomic_orbital a, atomic_orbital b)
 {
     double dx = 0;
@@ -170,6 +186,11 @@ arma::vec util::calculate_d_s_mu_nu(atomic_orbital a, atomic_orbital b)
     return result;
 }
 
+//function to build the derivative of the overlap matrix
+//inputs:
+//      molecule mol - the input molecule
+//outputs:
+//      arma::field<arma::vec> s_mu_nu - (3 x n_basis x n_basis) field containing the derivative of the overlap wrt nuclear perturbation
 arma::field<arma::vec> util::calculate_s_mu_nu_matrix(molecule mol)
 {
     arma::field<arma::vec> s_mu_nu(mol.n_basis, mol.n_basis);
@@ -193,47 +214,11 @@ arma::field<arma::vec> util::calculate_s_mu_nu_matrix(molecule mol)
     return s_mu_nu;
 }
 
-double util::calculate_d_sAB(int dim, primitive_guassian a, primitive_guassian b)
-{
-    double dx = 0;
-
-    arma::vec center = util::compute_center(a.coords, b.coords, a.alpha, b.alpha);
-    int L = a.l + a.m + a.n;
-    int l_a;
-    int l_b;
-
-    if (dim == 0)
-    {
-        l_a = a.l;
-        l_b = b.l;
-    }
-
-    else if (dim == 1)
-    {
-        l_a = a.m;
-        l_b = b.m;
-    }
-
-    else if (dim == 2)
-    {
-        l_a = a.n;
-        l_b = b.n;
-    }
-
-    if (l_a == 0)
-    {
-        dx = 2 * a.alpha * integrator::analytical_overlap_integral(dim, l_a+1, l_b, a.alpha, b.alpha, a.coords, b.coords, center);
-    }
-
-    if (l_a == 1)
-    {
-        dx = (-1.0) * integrator::analytical_overlap_integral(dim, l_a - 1, l_b, a.alpha, b.alpha, a.coords, b.coords, center)
-                + 2 * a.alpha * integrator::analytical_overlap_integral(dim, l_a + 1, l_b, a.alpha, b.alpha, a.coords, b.coords, center);
-    }
-
-    return dx;
-}
-
+//function to calculate the gamma value between two atomic orbitals
+//inputs:
+//      atomic_orbital a, b - the two atomic orbital objects
+//outputs:
+//      double result - the gamma value which is the (a, b) entry of gamma matrix
 double util::calculate_gamma(atomic_orbital a, atomic_orbital b)
 {
     arma::vec d_a_coefficients = a.contraction_coefficient;
@@ -275,6 +260,12 @@ double util::calculate_gamma(atomic_orbital a, atomic_orbital b)
     return result;
 }
 
+//function to calculate the two electron integral between two orbitals
+//inputs:
+//      atomic_orbital a, b - the two atomic orbitals
+//      double sigma_a, sigma_b - the sigma values of the two atomic orbitals
+//outputs:
+//      double result - the integral value in electron volts
 double util::calculate_2e_integral(atomic_orbital a, atomic_orbital b, double sigma_a, double sigma_b)
 {
     double result=0;
@@ -297,6 +288,12 @@ double util::calculate_2e_integral(atomic_orbital a, atomic_orbital b, double si
     return result*27.211;
 }
 
+//function to calculate [0]^0 term used in the function util::calculate_d_gamma_ab()
+//inputs:
+//      atomic_orbital a, b - two atomic orbital objects
+//      double sigma_a, sigma_b - the sigma values calculated for a and b
+//outputs:
+//      arma::vec d_0_0 - (1 x 3) vector with the (x, y, z) derivatives of [0]^0 term in electron volts
 arma::vec util::calculate_d_0_0(atomic_orbital a, atomic_orbital b, double sigma_a, double sigma_b)
 {
 
@@ -316,6 +313,59 @@ arma::vec util::calculate_d_0_0(atomic_orbital a, atomic_orbital b, double sigma
     return  d_0_0 * 27.211;
 }
 
+//function to calculate the derivative of an element of the gamma matrix wrt nuclear perturbation
+//inputs:
+//      int dim - the dimension along which to calculate
+//      primitive_guassian a, b - two primitive guassians with which to calculate
+//outputs:
+//      double dx - the derivative of the dim dimension of the gamma value of (a, b)
+double util::calculate_d_sAB(int dim, primitive_guassian a, primitive_guassian b)
+{
+    double dx = 0;
+
+    arma::vec center = util::compute_center(a.coords, b.coords, a.alpha, b.alpha);
+    int L = a.l + a.m + a.n;
+    int l_a;
+    int l_b;
+
+    if (dim == 0)
+    {
+        l_a = a.l;
+        l_b = b.l;
+    }
+
+    else if (dim == 1)
+    {
+        l_a = a.m;
+        l_b = b.m;
+    }
+
+    else if (dim == 2)
+    {
+        l_a = a.n;
+        l_b = b.n;
+    }
+
+    if (l_a == 0)
+    {
+        dx = 2 * a.alpha * integrator::analytical_overlap_integral(dim, l_a+1, l_b, a.alpha, b.alpha, a.coords, b.coords, center);
+    }
+
+    if (l_a == 1)
+    {
+        dx = (-1.0) * integrator::analytical_overlap_integral(dim, l_a - 1, l_b, a.alpha, b.alpha, a.coords, b.coords, center)
+                + 2 * a.alpha * integrator::analytical_overlap_integral(dim, l_a + 1, l_b, a.alpha, b.alpha, a.coords, b.coords, center);
+    }
+
+    return dx;
+}
+
+
+//function to calculate the derivative of (a, b) element of the gamma matrix
+//inputs:
+//      atomic_orbital a, b - the two atomic orbital objects
+//outputs:
+//      arma::vec result - (3 x 1) vector with the (x, y, z) derivatives - the (a, b) entry of the field d_gamma_ab
 arma::vec util::calculate_d_gamma_ab(atomic_orbital a, atomic_orbital b)
 {
     arma::vec d_a_coefficients = a.contraction_coefficient;
@@ -357,6 +407,11 @@ arma::vec util::calculate_d_gamma_ab(atomic_orbital a, atomic_orbital b)
     return result;
 }
 
+//function to build the d_gamma_ab field (3 x n_atoms x n_atoms)
+//inputs:
+//      molecule mol - the given molecule
+//outputs:
+//      arma::field<arma::vec> result - the (3 x n_atoms x n_atoms) field containing the (x, y, z) derivative of the (a, b) element
 arma::field<arma::vec> util::calculate_d_gamma_ab_matrix(molecule mol)
 {
     arma::field<arma::vec> d_gamma_ab(mol.n_atoms, mol.n_atoms);

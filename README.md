@@ -9,6 +9,7 @@ The code in this repository contains the functions and classes to perform the SC
 The project structure contains the following files and folders:
 
     /Molecules  -contains the molecules in input form
+    /Tests      -contains the test case degugging output for two sample molecules
     atomic_orbital.cpp  -contains the atomic orbital class logic
     integrator.cpp  -contains the integration tools used in util functions
     main.cpp -contains the files for running test cases and optimizing bond length

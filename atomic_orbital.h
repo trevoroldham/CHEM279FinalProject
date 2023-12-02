@@ -19,10 +19,13 @@ class atomic_orbital {
         arma::vec normalization_constant;
         
 
+        //vector to store the three primitive guassian objects
         std::vector<primitive_guassian> guassians;
 
+        //default constructor
         atomic_orbital(arma::vec coords, int l, int m, int n, arma::vec alpha, arma::vec contraction_coefficient);
 
+        //function to set normalization constants
         void set_normalization_constants();
         
 };

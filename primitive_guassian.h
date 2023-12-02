@@ -15,9 +15,8 @@ class primitive_guassian {
         double contraction_coefficient;
         arma::vec coords;
 
+        //default constructor
         primitive_guassian(arma::vec coords, int l, int m, int n, double alpha, double contraction_coefficient);
-
-        //std::vec<guassian> g(arma::vec coords, int l, int m, int n, double alpha, double contraction_coefficient)
 };
 
 #endif
