@@ -69,9 +69,6 @@ class molecule {
         arma::mat calculate_density_matrix(arma::mat coeff_matrix, int occ_mos);
         arma::mat calculate_total_density_matrix(arma::mat density_alpha, arma::mat density_beta, arma::vec & atomic_density);
 
-        //function to iterate over the self consistent field method through fixed point iteration
-        void scf_steps(bool verbose);
-
         //function to calculate energy in electron volts after performing SCF minimization
         double calculate_energy(bool verbose);
 
