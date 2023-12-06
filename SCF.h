@@ -11,7 +11,8 @@
 namespace SCF
 {
     void fixed_point_iteration(molecule & mol, double tolerance, bool verbose);
-    void DIIS(molecule & mol, double tolerance, int history, bool verbose);
+    void DIIS_FP(molecule & mol, double tolerance, int history, bool verbose);
+    void DIIS(molecule & mol, double tolerance, int max_history, bool verbose);
 }
 
 #endif
